@@ -339,45 +339,29 @@ public class BackApplication implements CommandLineRunner {
 		}
 		if (checking.size() == 1){
 			if (storeProduct.isPromotional_product()){
-				storeProduct.setSelling_price(((BigDecimal) checking.get(0).get("selling_price")).multiply(new BigDecimal(0.8)));
+				storeProduct.setSelling_price(storeProduct.getSelling_price().multiply(new BigDecimal(0.8)));
 			}else {
 				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("This product must be promotional " + storeProduct);
 			}
 		}
-		try{
-			if (storeProduct.getUPC_prom() == null || storeProduct.getUPC_prom().equals("") ){
-				String insertQuery = "INSERT INTO \"Store_Product\" (UPC, id_product, selling_price, products_number, " +
-						"promotional_product) " +
-						"VALUES (?, ?, ?, ?, ?)";
-				jdbcTemplate.update(insertQuery, storeProduct.getUPC(),
-						storeProduct.getId_product(), storeProduct.getSelling_price(), storeProduct.getProducts_number(),
-						storeProduct.isPromotional_product());
-			}
-			else {
-				String insertQuery = "INSERT INTO \"Store_Product\" (UPC, UPC_prom, id_product, selling_price, products_number, " +
-						"promotional_product) " +
-						"VALUES (?, ?, ?, ?, ?, ?)";
-				jdbcTemplate.update(insertQuery,storeProduct.getUPC(), storeProduct.getUPC_prom(),
-						storeProduct.getId_product(), storeProduct.getSelling_price(), storeProduct.getProducts_number(),
-						storeProduct.isPromotional_product());
-			}
-			if (storeProduct.isPromotional_product()){
-				jdbcTemplate.update(
-						"UPDATE \"Store_Product\" set UPC_prom = ? where id_product = ? AND UPC <> ? ",
-						storeProduct.getUPC(), storeProduct.getId_product(), storeProduct.getUPC()
-
-				);
-			}
-
-			return ResponseEntity.status(HttpStatus.CREATED).body("Created store product " + storeProduct);
-		}catch (DuplicateKeyException e){
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Such key already exists");
-		}catch (DataIntegrityViolationException e){
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No such product");
+		if (storeProduct.getUPC_prom() == null || storeProduct.getUPC_prom().equals("") ){
+			String insertQuery = "INSERT INTO \"Store_Product\" (UPC, id_product, selling_price, products_number, " +
+					"promotional_product) " +
+					"VALUES (?, ?, ?, ?, ?)";
+			jdbcTemplate.update(insertQuery, storeProduct.getUPC(),
+					storeProduct.getId_product(), storeProduct.getSelling_price(), storeProduct.getProducts_number(),
+					storeProduct.isPromotional_product());
+		}
+		else {
+			String insertQuery = "INSERT INTO \"Store_Product\" (UPC, UPC_prom, id_product, selling_price, products_number, " +
+					"promotional_product) " +
+					"VALUES (?, ?, ?, ?, ?, ?)";
+			jdbcTemplate.update(insertQuery,storeProduct.getUPC(), storeProduct.getUPC_prom(),
+					storeProduct.getId_product(), storeProduct.getSelling_price(), storeProduct.getProducts_number(),
+					storeProduct.isPromotional_product());
 		}
 
-
-
+		return ResponseEntity.status(HttpStatus.CREATED).body("Created store product " + storeProduct);
 	}
 	@PostMapping("/user/checks")
 	public ResponseEntity<String> createCheck(@RequestBody CheckTransferObject transferObject){
@@ -436,18 +420,13 @@ public class BackApplication implements CommandLineRunner {
 		logger.info("delete category: {}", id);
 		String deleteQuery = "DELETE FROM \"Category\" WHERE category_number = ?;";
 		//System.out.println(id);
-		try {
-			int rowsAffected = jdbcTemplate.update(deleteQuery, id);
-			if (rowsAffected > 0) {
-				//System.out.println("Deleted category");
-				return ResponseEntity.ok("Category deleted successfully");
-			} else {
-				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Category not found");
-			}
-		}catch (DataIntegrityViolationException e){
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Category has products");
+		int rowsAffected = jdbcTemplate.update(deleteQuery, id);
+		if (rowsAffected > 0) {
+			//System.out.println("Deleted category");
+			return ResponseEntity.ok("Category deleted successfully");
+		} else {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Category not found");
 		}
-
 	}
 	@DeleteMapping("/admin/employees/{id}")
 	public ResponseEntity<String> deleteEmployee(@PathVariable String id){
@@ -911,7 +890,7 @@ public class BackApplication implements CommandLineRunner {
 				"ORDER BY sp.products_number"));
 	}
 
-	@GetMapping("/user/store_products/by_product_name")
+	@GetMapping("/user/store_products/by_products_name")
 	public ResponseEntity<List<Map<String, Object>>> getProductsAndStoreNumbersBuName() {
 		logger.info("get store products ordered by name");
 		String query = "SELECT p.product_name, sp.*" +
