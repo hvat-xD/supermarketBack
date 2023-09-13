@@ -1,4 +1,4 @@
-package com.supermarket.back;
+package com.supermarket.people;
 
 import java.math.BigDecimal;
 import java.sql.Date;

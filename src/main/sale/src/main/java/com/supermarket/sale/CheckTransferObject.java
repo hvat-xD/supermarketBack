@@ -1,4 +1,4 @@
-package com.supermarket.back;
+package com.supermarket.sale;
 
 import java.util.ArrayList;
 

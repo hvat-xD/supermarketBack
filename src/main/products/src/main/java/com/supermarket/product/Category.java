@@ -1,4 +1,4 @@
-package com.supermarket.back;
+package com.supermarket.product;
 
 public class Category {
     private int category_number;
