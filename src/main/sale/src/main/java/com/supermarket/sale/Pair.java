@@ -1,4 +1,4 @@
-package com.supermarket.back;
+package com.supermarket.sale;
 
 public class Pair <T1,T2>{
     private T1 first;
